@@ -99,18 +99,26 @@ const ModelVisualizer = () => {
         {/* Original parameters */}
         <div className={styles.parameterGroup}>
           <label>Number of Estimators: {selectedParams.n_estimators}</label>
-          <input 
-            type="range"
-            min={Math.min(...validValues.n_estimators)}
-            max={Math.max(...validValues.n_estimators)}
-            value={selectedParams.n_estimators}
-            onChange={(e) => handleParamChange('n_estimators', Number(e.target.value))}
-            className={styles.slider}
-          />
-          <div className={styles.tickmarks}>
-            {validValues.n_estimators.map(value => (
-              <span key={value}>{value}</span>
-            ))}
+          <div className={styles.sliderContainer}>
+            <input 
+              type="range"
+              min={Math.min(...validValues.n_estimators)}
+              max={Math.max(...validValues.n_estimators)}
+              step={50}  // Match the steps in your data
+              value={selectedParams.n_estimators}
+              onChange={(e) => handleParamChange('n_estimators', Number(e.target.value))}
+              className={styles.slider}
+              onMouseDown={(e) => e.preventDefault()}  // Prevent text selection
+              draggable="false"  // Prevent dragging issues
+            />
+            <div className={styles.tickmarks}>
+              {validValues.n_estimators.map(value => (
+                <div key={value} className={styles.tickmark}>
+                  <span className={styles.tickValue}>{value}</span>
+                  <div className={styles.tickLine}></div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -199,6 +207,14 @@ const ModelVisualizer = () => {
             </LineChart>
           </ResponsiveContainer>
         ) : (
+          <div>Loading...</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ModelVisualizer;
           <div>Loading...</div>
         )}
       </div>
