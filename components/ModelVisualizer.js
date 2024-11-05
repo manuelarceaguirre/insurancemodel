@@ -70,27 +70,28 @@ const ModelVisualizer = () => {
     }
   }, [allPredictions]);
 
-  const getClosestValue = (value, validOptions) => {
-    return validOptions.reduce((prev, curr) => 
-      Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-    );
-  };
+  const handleParamChange = (param, value) => {
+    // Get closest valid value from the range
+    const getClosestValue = (value, validOptions) => {
+      return validOptions.reduce((prev, curr) => 
+        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+      );
+    };
 
-  const updatePredictions = useCallback((params) => {
-    const key = getPredictionKey(params);
+    // Snap to nearest valid value
+    const snappedValue = getClosestValue(value, validValues[param]);
+    console.log(`Parameter ${param} changed from ${value} to ${snappedValue}`);
+    
+    const newParams = { ...selectedParams, [param]: snappedValue };
+    const key = getPredictionKey(newParams);
+    
     if (allPredictions[key]) {
       console.log(`Setting new predictions for ${key}`);
       setCurrentPredictions([...allPredictions[key].predictions]);
     }
-  }, [allPredictions]);
 
-  const handleParamChange = useCallback((param, value) => {
-    const snappedValue = getClosestValue(value, validValues[param]);
-    const newParams = { ...selectedParams, [param]: snappedValue };
-    
     setSelectedParams(newParams);
-    updatePredictions(newParams);
-  }, [selectedParams, updatePredictions]);
+  };
 
   return (
     <div className={styles.visualizerContainer}>
@@ -150,20 +151,25 @@ const ModelVisualizer = () => {
         </div>
 
         <div className={styles.parameterGroup}>
-          <label>Subsample: {selectedParams.subsample.toFixed(1)}</label>
-          <input 
-            type="range"
-            min={Math.min(...validValues.subsample)}
-            max={Math.max(...validValues.subsample)}
-            step={0.1}
-            value={selectedParams.subsample}
-            onChange={(e) => handleParamChange('subsample', Number(e.target.value))}
-            className={styles.slider}
-          />
-          <div className={styles.tickmarks}>
-            {validValues.subsample.map(value => (
-              <span key={value}>{value.toFixed(1)}</span>
-            ))}
+          <label>Subsample: {selectedParams.subsample.toFixed(2)}</label>
+          <div className={styles.sliderContainer}>
+            <input 
+              type="range"
+              min={0.7}
+              max={1.0}
+              step={0.1}  // Match the exact steps in validValues.subsample
+              value={selectedParams.subsample}
+              onChange={(e) => handleParamChange('subsample', Number(e.target.value))}
+              className={styles.slider}
+            />
+            <div className={styles.tickmarks}>
+              {validValues.subsample.map(value => (
+                <div key={value} className={styles.tickmark}>
+                  <span className={styles.tickValue}>{value.toFixed(1)}</span>
+                  <div className={styles.tickLine}></div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
