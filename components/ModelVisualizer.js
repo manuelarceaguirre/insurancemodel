@@ -81,6 +81,26 @@ const ModelVisualizer = () => {
 
   return (
     <div className={styles.visualizerContainer}>
+      <div className={styles.bestModelInfo}>
+        <h2>Best Model Configuration</h2>
+        <div className={styles.bestModelDetails}>
+          <div>
+            <h3>Parameters:</h3>
+            <p>n_estimators: 50</p>
+            <p>learning_rate: 0.2</p>
+            <p>max_depth: 2</p>
+            <p>min_samples_split: 5</p>
+            <p>subsample: 0.7</p>
+          </div>
+          <div>
+            <h3>Best Metrics:</h3>
+            <p>RMSE: 4,258.15</p>
+            <p>MAE: 2,440.24</p>
+            <p>R² Score: 0.8832</p>
+          </div>
+        </div>
+      </div>
+      
       <div className={styles.parameterControls}>
         {/* N Estimators Slider */}
         <div className={styles.parameterGroup}>
