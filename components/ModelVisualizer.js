@@ -19,6 +19,9 @@ const ModelVisualizer = () => {
     max_depth: 3
   });
 
+  // Add state for y-axis domain
+  const [yDomain, setYDomain] = useState([0, 80000]);  // Set initial range
+
   // Load initial data
   useEffect(() => {
     const fetchData = async () => {
@@ -39,6 +42,26 @@ const ModelVisualizer = () => {
 
     fetchData();
   }, []);
+
+  // Calculate y-axis domain on initial load
+  useEffect(() => {
+    if (Object.keys(allPredictions).length > 0) {
+      let minValue = Infinity;
+      let maxValue = -Infinity;
+
+      // Find min and max across all predictions
+      Object.values(allPredictions).forEach(predictionSet => {
+        predictionSet.predictions.forEach(pred => {
+          minValue = Math.min(minValue, pred.actual, pred.predicted);
+          maxValue = Math.max(maxValue, pred.actual, pred.predicted);
+        });
+      });
+
+      // Add some padding to the range
+      const padding = (maxValue - minValue) * 0.1;
+      setYDomain([Math.floor(minValue - padding), Math.ceil(maxValue + padding)]);
+    }
+  }, [allPredictions]);
 
   const getClosestValue = (value, validOptions) => {
     return validOptions.reduce((prev, curr) => 
@@ -129,8 +152,13 @@ const ModelVisualizer = () => {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="index" />
-              <YAxis domain={['auto', 'auto']} />
-              <Tooltip />
+              <YAxis 
+                domain={yDomain}  // Use fixed domain
+                tickFormatter={(value) => value.toLocaleString()}  // Format large numbers
+              />
+              <Tooltip 
+                formatter={(value) => value.toLocaleString()}  // Format tooltip values
+              />
               <Legend />
               <Line 
                 type="monotone" 
