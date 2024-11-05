@@ -83,20 +83,20 @@ const ModelVisualizer = () => {
     <div className={styles.visualizerContainer}>
       <div className={styles.bestModelInfo}>
         <h2>Best Model Configuration</h2>
-        <div className={styles.bestModelDetails}>
-          <div>
+        <div className={styles.bestModelGrid}>
+          <div className={styles.column}>
             <h3>Parameters:</h3>
-            <p>n_estimators: 50</p>
-            <p>learning_rate: 0.2</p>
-            <p>max_depth: 2</p>
-            <p>min_samples_split: 5</p>
-            <p>subsample: 0.7</p>
+            <div className={styles.paramValue}>n_estimators: 50</div>
+            <div className={styles.paramValue}>learning_rate: 0.2</div>
+            <div className={styles.paramValue}>max_depth: 2</div>
+            <div className={styles.paramValue}>min_samples_split: 5</div>
+            <div className={styles.paramValue}>subsample: 0.7</div>
           </div>
-          <div>
+          <div className={styles.column}>
             <h3>Best Metrics:</h3>
-            <p>RMSE: 4,258.15</p>
-            <p>MAE: 2,440.24</p>
-            <p>R² Score: 0.8832</p>
+            <div className={styles.paramValue}>RMSE: 4,258.15</div>
+            <div className={styles.paramValue}>MAE: 2,440.24</div>
+            <div className={styles.paramValue}>R² Score: 0.8832</div>
           </div>
         </div>
       </div>
