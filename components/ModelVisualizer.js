@@ -39,12 +39,7 @@ const ModelVisualizer = () => {
         
         if (data?.predictions) {
           setAllPredictions(data.predictions);
-          // Set initial predictions
-          const firstKey = Object.keys(data.predictions)[0];
-          if (firstKey) {
-            setCurrentPredictions(data.predictions[firstKey].predictions || []);
-            setCurrentMetrics(data.predictions[firstKey].metrics || currentMetrics);
-          }
+          updatePredictions(data.predictions, selectedParams);
         }
 
         if (data?.bestConfig) {
@@ -68,18 +63,40 @@ const ModelVisualizer = () => {
     fetchData();
   }, []);
 
-  // Add handler for parameter changes
-  const handleParamChange = (param, value) => {
-    const newParams = { ...selectedParams, [param]: value };
-    setSelectedParams(newParams);
-    
-    // Create the key to look up predictions
-    const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
-    
-    if (allPredictions[key]) {
-      setCurrentPredictions(allPredictions[key].predictions);
-      setCurrentMetrics(allPredictions[key].metrics);
+  const updatePredictions = (predictions, params) => {
+    const key = `${params.n_estimators}-${params.learning_rate}-${params.max_depth}`;
+    if (predictions[key]) {
+      setCurrentPredictions(predictions[key].predictions);
+      setCurrentMetrics(predictions[key].metrics);
     }
+  };
+
+  const handleParamChange = (param, value) => {
+    const newParams = { ...selectedParams };
+    
+    // Round the values to match available options
+    if (param === 'n_estimators') {
+      // Round to nearest available value: 50, 100, 200
+      const values = [50, 100, 200];
+      newParams[param] = values.reduce((prev, curr) => 
+        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+      );
+    } else if (param === 'learning_rate') {
+      // Round to nearest available value: 0.01, 0.05, 0.1
+      const values = [0.01, 0.05, 0.1];
+      newParams[param] = values.reduce((prev, curr) => 
+        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+      );
+    } else if (param === 'max_depth') {
+      // Round to nearest available value: 2, 3, 5
+      const values = [2, 3, 5];
+      newParams[param] = values.reduce((prev, curr) => 
+        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+      );
+    }
+
+    setSelectedParams(newParams);
+    updatePredictions(allPredictions, newParams);
   };
 
   if (isLoading) return <div className={styles.loading}>Loading model predictions...</div>;
@@ -160,42 +177,44 @@ const ModelVisualizer = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* Add Parameter Controls */}
       <div className={styles.parameterControls}>
         <div className={styles.parameterGroup}>
-          <label>Number of Estimators:</label>
-          <select 
+          <label>Number of Estimators: {selectedParams.n_estimators}</label>
+          <input 
+            type="range"
+            min="50"
+            max="200"
+            step="50"
             value={selectedParams.n_estimators}
             onChange={(e) => handleParamChange('n_estimators', Number(e.target.value))}
-          >
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-            <option value={200}>200</option>
-          </select>
+            className={styles.slider}
+          />
         </div>
 
         <div className={styles.parameterGroup}>
-          <label>Learning Rate:</label>
-          <select 
+          <label>Learning Rate: {selectedParams.learning_rate.toFixed(2)}</label>
+          <input 
+            type="range"
+            min="0.01"
+            max="0.1"
+            step="0.01"
             value={selectedParams.learning_rate}
             onChange={(e) => handleParamChange('learning_rate', Number(e.target.value))}
-          >
-            <option value={0.01}>0.01</option>
-            <option value={0.05}>0.05</option>
-            <option value={0.1}>0.10</option>
-          </select>
+            className={styles.slider}
+          />
         </div>
 
         <div className={styles.parameterGroup}>
-          <label>Max Depth:</label>
-          <select 
+          <label>Max Depth: {selectedParams.max_depth}</label>
+          <input 
+            type="range"
+            min="2"
+            max="5"
+            step="1"
             value={selectedParams.max_depth}
             onChange={(e) => handleParamChange('max_depth', Number(e.target.value))}
-          >
-            <option value={2}>2</option>
-            <option value={3}>3</option>
-            <option value={5}>5</option>
-          </select>
+            className={styles.slider}
+          />
         </div>
       </div>
     </div>
