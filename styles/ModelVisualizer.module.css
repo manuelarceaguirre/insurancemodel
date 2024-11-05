@@ -335,6 +335,7 @@
 .tickmarks {
   display: flex;
   justify-content: space-between;
+  margin-top: 5px;
   padding: 0 10px;
   color: #666;
   font-size: 12px;
