@@ -16,21 +16,28 @@ const ModelVisualizer = () => {
     max_depth: 3
   });
 
+  // Available parameter values from your model
+  const validParams = {
+    n_estimators: [50, 100, 200],
+    learning_rate: [0.01, 0.05, 0.1],
+    max_depth: [2, 3, 5]
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch('/api/predictAll');
         const data = await response.json();
-        console.log("Received data:", data);
+        console.log("Full data structure:", JSON.stringify(data, null, 2));
         
         if (data.predictions) {
           setAllPredictions(data.predictions);
           // Set initial predictions using the default parameters
           const initialKey = `${selectedParams.n_estimators}-${selectedParams.learning_rate}-${selectedParams.max_depth}`;
+          console.log("Available keys:", Object.keys(data.predictions));
+          console.log("Looking for initial key:", initialKey);
           if (data.predictions[initialKey]) {
-            console.log("Initial predictions:", data.predictions[initialKey]); // Debug log
-            setCurrentPredictions(data.predictions[initialKey].predictions);
-            setCurrentMetrics(data.predictions[initialKey].metrics);
+            console.log("Sample of predictions:", data.predictions[initialKey].predictions.slice(0, 5));
           }
         }
       } catch (error) {
@@ -43,30 +50,22 @@ const ModelVisualizer = () => {
 
   const handleParamChange = (param, value) => {
     const newParams = { ...selectedParams };
-    newParams[param] = value;
     
-    // Round the values to match your model's exact parameters
+    // Find the closest valid value for each parameter
     if (param === 'n_estimators') {
-      newParams[param] = Math.round(value / 75) * 75 + 50; // Will give 50, 100, or 200
-    } else if (param === 'learning_rate') {
-      const rates = [0.01, 0.05, 0.1];
-      const closest = rates.reduce((prev, curr) => 
+      const closest = validParams.n_estimators.reduce((prev, curr) => 
         Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
       );
       newParams[param] = closest;
-    } else if (param === 'max_depth') {
-      const depths = [2, 3, 5];
-      const closest = depths.reduce((prev, curr) => 
-        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-      );
-      newParams[param] = closest;
+    } else {
+      newParams[param] = value;
     }
 
     const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
-    console.log("Looking for key:", key); // Debug log
+    console.log("Looking for key:", key);
     
     if (allPredictions[key]) {
-      console.log("Found predictions for key:", key); // Debug log
+      console.log("Found predictions for key:", key);
       setCurrentPredictions(allPredictions[key].predictions);
       setCurrentMetrics(allPredictions[key].metrics);
     }
@@ -81,27 +80,27 @@ const ModelVisualizer = () => {
       <div className={styles.parameterControls}>
         <div className={styles.parameterGroup}>
           <label>Number of Estimators: {selectedParams.n_estimators}</label>
-          <input 
-            type="range"
-            min="50"
-            max="200"
-            step="75"
+          <select 
             value={selectedParams.n_estimators}
             onChange={(e) => handleParamChange('n_estimators', Number(e.target.value))}
-            className={styles.slider}
-          />
+            className={styles.select}
+          >
+            {validParams.n_estimators.map(value => (
+              <option key={value} value={value}>{value}</option>
+            ))}
+          </select>
         </div>
 
         <div className={styles.parameterGroup}>
-          <label>Learning Rate: {selectedParams.learning_rate.toFixed(2)}</label>
+          <label>Learning Rate: {selectedParams.learning_rate}</label>
           <select 
             value={selectedParams.learning_rate}
             onChange={(e) => handleParamChange('learning_rate', Number(e.target.value))}
             className={styles.select}
           >
-            <option value="0.01">0.01</option>
-            <option value="0.05">0.05</option>
-            <option value="0.1">0.1</option>
+            {validParams.learning_rate.map(value => (
+              <option key={value} value={value}>{value}</option>
+            ))}
           </select>
         </div>
 
@@ -112,9 +111,9 @@ const ModelVisualizer = () => {
             onChange={(e) => handleParamChange('max_depth', Number(e.target.value))}
             className={styles.select}
           >
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="5">5</option>
+            {validParams.max_depth.map(value => (
+              <option key={value} value={value}>{value}</option>
+            ))}
           </select>
         </div>
       </div>
