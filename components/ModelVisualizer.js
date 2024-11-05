@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts';
 import styles from '../styles/ModelVisualizer.module.css';
 
 const ModelVisualizer = () => {
@@ -149,21 +149,34 @@ const ModelVisualizer = () => {
             <LineChart 
               data={currentPredictions}
               key={`${selectedParams.n_estimators}-${selectedParams.learning_rate}-${selectedParams.max_depth}`}
+              margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="index" />
+              <XAxis 
+                dataKey="index"
+                label={{
+                  value: 'Sample Index',
+                  position: 'bottom',
+                  offset: 20
+                }}
+              />
               <YAxis 
-                domain={yDomain}  // Use fixed domain
-                tickFormatter={(value) => value.toLocaleString()}  // Format large numbers
+                domain={yDomain}
+                tickFormatter={(value) => value.toLocaleString()}
+                label={{
+                  value: 'Insurance Charges ($)',
+                  angle: -90,
+                  position: 'left',
+                  offset: 40
+                }}
               />
-              <Tooltip 
-                formatter={(value) => value.toLocaleString()}  // Format tooltip values
-              />
-              <Legend />
+              <Tooltip formatter={(value) => value.toLocaleString()} />
+              <Legend verticalAlign="top" height={36} />
               <Line 
                 type="monotone" 
                 dataKey="actual" 
                 stroke="#8884d8" 
+                name="Actual Charges"
                 dot={false}
                 isAnimationActive={false}
               />
@@ -171,6 +184,7 @@ const ModelVisualizer = () => {
                 type="monotone" 
                 dataKey="predicted" 
                 stroke="#82ca9d" 
+                name="Predicted Charges"
                 dot={false}
                 isAnimationActive={false}
               />
