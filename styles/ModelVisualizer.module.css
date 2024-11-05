@@ -1,0 +1,168 @@
+.visualizerContainer {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.controls {
+  margin-bottom: 20px;
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.sliderGroup {
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sliderGroup label {
+  width: 150px;
+  font-weight: 500;
+}
+
+.sliderGroup input {
+  width: 200px;
+}
+
+.sliderGroup span {
+  min-width: 50px;
+}
+
+.chartContainer {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 450px;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2em;
+  color: #666;
+}
+
+.error {
+  color: #dc3545;
+  padding: 10px;
+  margin: 10px 0;
+  background: #ffe6e6;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.noData {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 1.2em;
+}
+
+.metricsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.metric label {
+  font-size: 0.9em;
+  color: #666;
+  font-weight: 500;
+}
+
+.metric span {
+  font-size: 1.2em;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.optimalMessage {
+  margin: 20px auto;
+  padding: 15px;
+  border-radius: 8px;
+  max-width: 600px;
+  text-align: center;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.optimal {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.optimalBadge {
+  color: #155724;
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.bestModelHint {
+  color: #383d41;
+}
+
+.bestModelHint span {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.bestModelHint ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.bestModelHint li {
+  margin: 5px 0;
+  color: #2c3e50;
+}
+
+.metric {
+  transition: all 0.3s ease;
+}
+
+.optimalMetric {
+  transform: scale(1.05);
+}
+
+.optimalMetric span {
+  color: #28a745;
+}
+
+/* Add subtle animations for the optimal state */
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(40, 167, 69, 0.4); }
+  100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.2); }
+}
+
+.optimal {
+  animation: glow 2s infinite;
+} 
