@@ -66,24 +66,25 @@ function generatePredictions(baseData, n_estimators, learning_rate, max_depth) {
 }
 
 function calculateMetrics(predictions) {
-  const actualValues = predictions.map(p => p.actual);
-  const predictedValues = predictions.map(p => p.predicted);
-
+  const actuals = predictions.map(p => p.actual);
+  const predicteds = predictions.map(p => p.predicted);
+  
+  // Calculate RMSE
   const rmse = Math.sqrt(
-    predictions.reduce((sum, p) => sum + Math.pow(p.actual - p.predicted, 2), 0) / predictions.length
+    predicteds.reduce((sum, pred, i) => 
+      sum + Math.pow(pred - actuals[i], 2), 0) / predicteds.length
   );
 
-  const mae = predictions.reduce((sum, p) => sum + Math.abs(p.actual - p.predicted), 0) / predictions.length;
+  // Calculate MAE
+  const mae = predicteds.reduce((sum, pred, i) => 
+    sum + Math.abs(pred - actuals[i]), 0) / predicteds.length;
 
-  const r2 = 1 - (
-    predictions.reduce((sum, p) => sum + Math.pow(p.actual - p.predicted, 2), 0
-  ) / (
-    predictions.reduce((sum, p) => sum + Math.pow(p.actual - actualValues.mean(), 2), 0
-  );
+  // Calculate R²
+  const meanActual = actuals.reduce((sum, val) => sum + val, 0) / actuals.length;
+  const ssTotal = actuals.reduce((sum, val) => sum + Math.pow(val - meanActual, 2), 0);
+  const ssResidual = predicteds.reduce((sum, pred, i) => 
+    sum + Math.pow(actuals[i] - pred, 2), 0);
+  const r2 = 1 - (ssResidual / ssTotal);
 
   return { rmse, mae, r2 };
 }
-
-function mean(arr) {
-  return arr.reduce((sum, x) => sum + x, 0) / arr.length;
-} 
