@@ -85,7 +85,7 @@ const ModelVisualizer = () => {
         <h2>Best Model Configuration</h2>
         <div className={styles.bestModelGrid}>
           <div className={styles.column}>
-            <h3>Parameters:</h3>
+            <h3>Best Model Parameters:</h3>
             <div className={styles.paramValue}>n_estimators: 50</div>
             <div className={styles.paramValue}>learning_rate: 0.2</div>
             <div className={styles.paramValue}>max_depth: 2</div>
