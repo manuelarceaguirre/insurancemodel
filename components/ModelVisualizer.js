@@ -17,27 +17,28 @@ const ModelVisualizer = () => {
   });
 
   useEffect(() => {
-    fetchPredictions();
-  }, []);
-
-  const fetchPredictions = async () => {
-    try {
-      const response = await fetch('/api/predictAll');
-      const data = await response.json();
-      
-      if (data?.predictions) {
-        setAllPredictions(data.predictions);
-        // Set initial predictions
-        const key = `${selectedParams.n_estimators}-${selectedParams.learning_rate}-${selectedParams.max_depth}`;
-        if (data.predictions[key]) {
-          setCurrentPredictions(data.predictions[key].predictions);
-          setCurrentMetrics(data.predictions[key].metrics);
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/predictAll');
+        const data = await response.json();
+        console.log("Received data:", data); // Let's see what we're getting
+        
+        if (data.predictions) {
+          setAllPredictions(data.predictions);
+          // Set initial predictions using the default parameters
+          const initialKey = `${selectedParams.n_estimators}-${selectedParams.learning_rate}-${selectedParams.max_depth}`;
+          if (data.predictions[initialKey]) {
+            setCurrentPredictions(data.predictions[initialKey].predictions);
+            setCurrentMetrics(data.predictions[initialKey].metrics);
+          }
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
-    } catch (error) {
-      console.error('Error fetching predictions:', error);
-    }
-  };
+    };
+
+    fetchData();
+  }, []);
 
   const handleParamChange = (param, value) => {
     const newParams = { ...selectedParams };
@@ -125,7 +126,11 @@ const ModelVisualizer = () => {
       <div className={styles.chartContainer}>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart
-            data={currentPredictions}
+            data={currentPredictions ? currentPredictions.map(p => ({
+              index: p.index,
+              actual: p.actual,
+              predicted: p.predicted
+            })) : []}
             margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
