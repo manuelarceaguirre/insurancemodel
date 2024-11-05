@@ -124,25 +124,41 @@ const ModelVisualizer = () => {
 
       <div className={styles.chartContainer}>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={currentPredictions}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="index" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="actual" 
-              stroke="#8884d8" 
-              name="Actual"
-              dot={false}
+          <LineChart
+            data={currentPredictions}
+            margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+            <XAxis 
+              dataKey="index"
+              interval={20}  // Show fewer X-axis labels
+              tick={{ fontSize: 12 }}
             />
-            <Line 
-              type="monotone" 
-              dataKey="predicted" 
-              stroke="#82ca9d" 
+            <YAxis 
+              tick={{ fontSize: 12 }}
+              domain={[0, 'auto']}  // Start from 0, auto-scale top
+              tickFormatter={(value) => `$${Math.round(value/1000)}k`}  // Format as $k
+            />
+            <Tooltip 
+              formatter={(value) => `$${Math.round(value).toLocaleString()}`}
+              labelFormatter={(index) => `Sample ${index}`}
+            />
+            <Legend />
+            <Line
+              type="monotone"  // Makes the line smoother
+              dataKey="actual"
+              stroke="#8884d8"
+              name="Actual"
+              dot={false}  // Remove dots
+              strokeWidth={2}  // Slightly thicker line
+            />
+            <Line
+              type="monotone"  // Makes the line smoother
+              dataKey="predicted"
+              stroke="#82ca9d"
               name="Predicted"
-              dot={false}
+              dot={false}  // Remove dots
+              strokeWidth={2}  // Slightly thicker line
             />
           </LineChart>
         </ResponsiveContainer>
