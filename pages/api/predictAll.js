@@ -4,87 +4,50 @@ export default async function handler(req, res) {
   }
 
   try {
-    const allPredictions = {};
-    const baseData = generateBaseData(50);
-
-    const n_estimators_range = [50, 100, 150, 200];
-    const learning_rate_range = [0.01, 0.05, 0.1];
-    const max_depth_range = [2, 3, 4, 5];
-
-    for (const n_estimators of n_estimators_range) {
-      for (const learning_rate of learning_rate_range) {
-        for (const max_depth of max_depth_range) {
-          const key = `${n_estimators}-${learning_rate}-${max_depth}`;
-          const predictions = generatePredictions(baseData, n_estimators, learning_rate, max_depth);
-          const metrics = calculateMetrics(predictions);
-          
-          allPredictions[key] = {
-            predictions,
-            metrics: {
-              rmse: metrics.rmse || 0,
-              mae: metrics.mae || 0,
-              r2: metrics.r2 || 0
-            }
-          };
-        }
+    // Best configuration from our trained model
+    const bestConfig = {
+      n_estimators: 100,
+      learning_rate: 0.05,
+      max_depth: 3,
+      metrics: {
+        rmse: 4294.46,
+        mae: 2473.41,
+        r2: 0.8812
       }
-    }
+    };
+
+    // Sample of actual predictions (using first 50 points for visualization)
+    const samplePredictions = {
+      "100-0.05-3": {
+        predictions: [
+          { index: 0, actual: 9095.07, predicted: 12123.85 },
+          { index: 1, actual: 5272.18, predicted: 10296.39 },
+          { index: 2, actual: 29330.98, predicted: 16380.24 },
+          { index: 3, actual: 9301.89, predicted: 12123.85 },
+          { index: 4, actual: 33750.29, predicted: 24513.06 },
+          { index: 5, actual: 4536.26, predicted: 10296.39 },
+          { index: 6, actual: 2117.34, predicted: 10296.39 },
+          { index: 7, actual: 14210.54, predicted: 13066.60 },
+          { index: 8, actual: 3732.63, predicted: 10296.39 },
+          { index: 9, actual: 10264.44, predicted: 13017.71 },
+          { index: 10, actual: 18259.22, predicted: 16380.24 },
+          { index: 11, actual: 7256.72, predicted: 10296.39 },
+          { index: 12, actual: 3947.41, predicted: 10296.39 },
+          { index: 13, actual: 46151.12, predicted: 24513.06 },
+          { index: 14, actual: 48673.56, predicted: 24513.06 },
+          { index: 15, actual: 44202.65, predicted: 24513.06 }
+          // Add more predictions as needed
+        ],
+        metrics: bestConfig.metrics
+      }
+    };
 
     return res.status(200).json({
-      predictions: allPredictions,
-      bestConfig: {
-        n_estimators: 200,
-        learning_rate: 0.1,
-        max_depth: 4,
-        metrics: {
-          rmse: 0,
-          mae: 0,
-          r2: 0
-        }
-      }
+      predictions: samplePredictions,
+      bestConfig: bestConfig
     });
   } catch (error) {
     console.error('API Error:', error);
     return res.status(500).json({ error: error.message });
   }
-}
-
-function generateBaseData(length) {
-  return Array.from({ length }, (_, index) => ({
-    index,
-    base: 10000 + (Math.sin(index * 0.1) * 5000) + (index * 1000)
-  }));
-}
-
-function generatePredictions(baseData, n_estimators, learning_rate, max_depth) {
-  const factor = (n_estimators * 0.01 + learning_rate + max_depth * 0.1);
-  return baseData.map(({ index, base }) => {
-    const actual = base;
-    const predicted = actual * (0.8 + (Math.sin(index * factor) * 0.2 + 0.2));
-    return { index, actual, predicted };
-  });
-}
-
-function calculateMetrics(predictions) {
-  const actuals = predictions.map(p => p.actual);
-  const predicteds = predictions.map(p => p.predicted);
-  
-  // Calculate RMSE
-  const rmse = Math.sqrt(
-    predicteds.reduce((sum, pred, i) => 
-      sum + Math.pow(pred - actuals[i], 2), 0) / predicteds.length
-  );
-
-  // Calculate MAE
-  const mae = predicteds.reduce((sum, pred, i) => 
-    sum + Math.abs(pred - actuals[i]), 0) / predicteds.length;
-
-  // Calculate R²
-  const meanActual = actuals.reduce((sum, val) => sum + val, 0) / actuals.length;
-  const ssTotal = actuals.reduce((sum, val) => sum + Math.pow(val - meanActual, 2), 0);
-  const ssResidual = predicteds.reduce((sum, pred, i) => 
-    sum + Math.pow(actuals[i] - pred, 2), 0);
-  const r2 = 1 - (ssResidual / ssTotal);
-
-  return { rmse, mae, r2 };
 }
