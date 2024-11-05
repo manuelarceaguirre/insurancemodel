@@ -16,8 +16,8 @@ const ModelVisualizer = () => {
     max_depth: 3
   });
 
-  // Available parameter values from your model
-  const validParams = {
+  // Valid values from the available keys
+  const validValues = {
     n_estimators: [50, 100, 200],
     learning_rate: [0.01, 0.05, 0.1],
     max_depth: [2, 3, 5]
@@ -49,17 +49,15 @@ const ModelVisualizer = () => {
   }, []);
 
   const handleParamChange = (param, value) => {
-    const newParams = { ...selectedParams };
-    
-    // Find the closest valid value for each parameter
-    if (param === 'n_estimators') {
-      const closest = validParams.n_estimators.reduce((prev, curr) => 
+    // Find the nearest valid value
+    const getClosestValue = (value, validOptions) => {
+      return validOptions.reduce((prev, curr) => 
         Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
       );
-      newParams[param] = closest;
-    } else {
-      newParams[param] = value;
-    }
+    };
+
+    const newParams = { ...selectedParams };
+    newParams[param] = getClosestValue(value, validValues[param]);
 
     const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
     console.log("Looking for key:", key);
@@ -80,41 +78,56 @@ const ModelVisualizer = () => {
       <div className={styles.parameterControls}>
         <div className={styles.parameterGroup}>
           <label>Number of Estimators: {selectedParams.n_estimators}</label>
-          <select 
+          <input 
+            type="range"
+            min="50"
+            max="200"
+            step="1"
             value={selectedParams.n_estimators}
             onChange={(e) => handleParamChange('n_estimators', Number(e.target.value))}
-            className={styles.select}
-          >
-            {validParams.n_estimators.map(value => (
-              <option key={value} value={value}>{value}</option>
-            ))}
-          </select>
+            className={styles.slider}
+          />
+          <div className={styles.tickmarks}>
+            <span>50</span>
+            <span>100</span>
+            <span>200</span>
+          </div>
         </div>
 
         <div className={styles.parameterGroup}>
-          <label>Learning Rate: {selectedParams.learning_rate}</label>
-          <select 
+          <label>Learning Rate: {selectedParams.learning_rate.toFixed(2)}</label>
+          <input 
+            type="range"
+            min="0.01"
+            max="0.1"
+            step="0.001"
             value={selectedParams.learning_rate}
             onChange={(e) => handleParamChange('learning_rate', Number(e.target.value))}
-            className={styles.select}
-          >
-            {validParams.learning_rate.map(value => (
-              <option key={value} value={value}>{value}</option>
-            ))}
-          </select>
+            className={styles.slider}
+          />
+          <div className={styles.tickmarks}>
+            <span>0.01</span>
+            <span>0.05</span>
+            <span>0.1</span>
+          </div>
         </div>
 
         <div className={styles.parameterGroup}>
           <label>Max Depth: {selectedParams.max_depth}</label>
-          <select 
+          <input 
+            type="range"
+            min="2"
+            max="5"
+            step="1"
             value={selectedParams.max_depth}
             onChange={(e) => handleParamChange('max_depth', Number(e.target.value))}
-            className={styles.select}
-          >
-            {validParams.max_depth.map(value => (
-              <option key={value} value={value}>{value}</option>
-            ))}
-          </select>
+            className={styles.slider}
+          />
+          <div className={styles.tickmarks}>
+            <span>2</span>
+            <span>3</span>
+            <span>5</span>
+          </div>
         </div>
       </div>
 
@@ -136,7 +149,7 @@ const ModelVisualizer = () => {
       <div className={styles.chartContainer}>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart
-            data={currentPredictions || []}
+            data={currentPredictions}
             margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
@@ -146,7 +159,6 @@ const ModelVisualizer = () => {
               tick={{ fontSize: 12 }}
             />
             <YAxis 
-              tick={{ fontSize: 12 }}
               domain={[0, 'auto']}
               tickFormatter={(value) => `$${Math.round(value/1000)}k`}
             />
