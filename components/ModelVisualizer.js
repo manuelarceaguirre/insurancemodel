@@ -222,29 +222,42 @@ const ModelVisualizer = () => {
               left: 20,
               bottom: 5,
             }}
+            style={{ background: '#2d2d2d' }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              stroke="#404040"
+            />
             <XAxis 
               dataKey="index" 
               domain={[0, 49]}
               type="number"
               ticks={[0, 6, 12, 18, 24, 30, 36, 42, 49]}
-              interval={0}
-              allowDataOverflow={true}
+              tick={{ fill: '#e0e0e0' }}
+              stroke="#404040"
             />
             <YAxis 
               domain={[0, 80000]}
               tickFormatter={(value) => value.toLocaleString()}
-              allowDataOverflow={true}
+              tick={{ fill: '#e0e0e0' }}
+              stroke="#404040"
             />
             <Tooltip 
-              formatter={(value) => value.toFixed(2)}
+              contentStyle={{ 
+                backgroundColor: '#2d2d2d', 
+                border: '1px solid #404040',
+                color: '#e0e0e0' 
+              }}
+              itemStyle={{ color: '#e0e0e0' }}
+              formatter={(value) => value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
             />
-            <Legend />
+            <Legend 
+              wrapperStyle={{ color: '#e0e0e0' }}
+            />
             <Line
               type="monotone"
               dataKey="actual"
-              stroke="#8884d8"
+              stroke="#ffffff"
               name="Actual"
               dot={false}
               isAnimationActive={true}
@@ -256,7 +269,7 @@ const ModelVisualizer = () => {
             <Line
               type="monotone"
               dataKey="predicted"
-              stroke="#82ca9d"
+              stroke="#ff6b6b"
               name="Predicted"
               dot={false}
               isAnimationActive={true}
