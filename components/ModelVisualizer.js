@@ -42,33 +42,24 @@ const ModelVisualizer = () => {
   const handleParamChange = (param, value) => {
     const newParams = { ...selectedParams };
     
-    // Round to available values
+    // Use exact values from your model configurations
     if (param === 'n_estimators') {
-      const values = [50, 100, 200];
-      newParams[param] = values.reduce((prev, curr) => 
-        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-      );
+      newParams[param] = value;
     } else if (param === 'learning_rate') {
-      const values = [0.01, 0.05, 0.1];
-      newParams[param] = values.reduce((prev, curr) => 
-        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-      );
+      newParams[param] = value;
     } else if (param === 'max_depth') {
-      const values = [2, 3, 5];
-      newParams[param] = values.reduce((prev, curr) => 
-        Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-      );
+      newParams[param] = value;
     }
 
-    // Update the selected parameters
-    setSelectedParams(newParams);
-
-    // Update predictions and metrics
+    // Create the exact key format that matches your data
     const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
+    
     if (allPredictions[key]) {
       setCurrentPredictions(allPredictions[key].predictions);
       setCurrentMetrics(allPredictions[key].metrics);
     }
+
+    setSelectedParams(newParams);
   };
 
   return (
@@ -82,7 +73,7 @@ const ModelVisualizer = () => {
             type="range"
             min="50"
             max="200"
-            step="50"
+            step="75"  // To match your exact values: 50, 100, 200
             value={selectedParams.n_estimators}
             onChange={(e) => handleParamChange('n_estimators', Number(e.target.value))}
             className={styles.slider}
@@ -95,7 +86,7 @@ const ModelVisualizer = () => {
             type="range"
             min="0.01"
             max="0.1"
-            step="0.01"
+            step="0.045"  // To match your exact values: 0.01, 0.05, 0.1
             value={selectedParams.learning_rate}
             onChange={(e) => handleParamChange('learning_rate', Number(e.target.value))}
             className={styles.slider}
@@ -108,7 +99,7 @@ const ModelVisualizer = () => {
             type="range"
             min="2"
             max="5"
-            step="1"
+            step="1.5"  // To match your exact values: 2, 3, 5
             value={selectedParams.max_depth}
             onChange={(e) => handleParamChange('max_depth', Number(e.target.value))}
             className={styles.slider}
