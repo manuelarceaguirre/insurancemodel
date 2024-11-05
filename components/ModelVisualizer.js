@@ -42,7 +42,6 @@ const ModelVisualizer = () => {
   }, []);
 
   const handleParamChange = (param, value) => {
-    // Find the nearest valid value
     const getClosestValue = (value, validOptions) => {
       return validOptions.reduce((prev, curr) => 
         Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
@@ -50,16 +49,15 @@ const ModelVisualizer = () => {
     };
 
     const newParams = { ...selectedParams };
-    newParams[param] = getClosestValue(value, validValues[param]);
+    newParams[param] = value;
 
+    // Create the key for lookup
     const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
-    console.log("Current predictions key:", key);
-    console.log("Available predictions:", Object.keys(allPredictions));
-    console.log("Found predictions:", allPredictions[key]?.predictions?.slice(0, 5));
     
     if (allPredictions[key]) {
-      setCurrentPredictions(allPredictions[key].predictions);
-      console.log("Updated predictions:", allPredictions[key].predictions.slice(0, 5));
+      // Force a new array reference to trigger re-render
+      setCurrentPredictions([...allPredictions[key].predictions]);
+      console.log("Updating predictions with new data:", allPredictions[key].predictions.slice(0, 5));
     }
 
     setSelectedParams(newParams);
@@ -153,7 +151,7 @@ const ModelVisualizer = () => {
               tick={{ fontSize: 12 }}
             />
             <YAxis 
-              domain={[0, 'auto']}
+              domain={['auto', 'auto']}
               tickFormatter={(value) => `$${Math.round(value/1000)}k`}
             />
             <Tooltip 
@@ -168,6 +166,7 @@ const ModelVisualizer = () => {
               name="Actual"
               dot={false}
               strokeWidth={2}
+              isAnimationActive={false}
             />
             <Line
               type="monotone"
@@ -176,6 +175,7 @@ const ModelVisualizer = () => {
               name="Predicted"
               dot={false}
               strokeWidth={2}
+              isAnimationActive={false}
             />
           </LineChart>
         </ResponsiveContainer>
