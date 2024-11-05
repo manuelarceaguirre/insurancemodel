@@ -1,30 +1,18 @@
-export const config = {
-  runtime: 'edge'
-};
-
-export default async function handler(req) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { status: 405, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { n_estimators, learning_rate, max_depth } = await req.json();
+    const { n_estimators, learning_rate, max_depth } = req.body;
     const baseData = generateBaseData(50);
     const predictions = generatePredictions(baseData, n_estimators, learning_rate, max_depth);
     const metrics = calculateMetrics(predictions);
 
-    return new Response(
-      JSON.stringify({ predictions, metrics }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(200).json({ predictions, metrics });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('Error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
 
