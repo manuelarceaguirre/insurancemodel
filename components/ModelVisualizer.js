@@ -5,7 +5,11 @@ import styles from '../styles/ModelVisualizer.module.css';
 const ModelVisualizer = () => {
   const [allPredictions, setAllPredictions] = useState({});
   const [currentPredictions, setCurrentPredictions] = useState([]);
-  const [currentMetrics, setCurrentMetrics] = useState(null);
+  const [currentMetrics, setCurrentMetrics] = useState({
+    rmse: 0,
+    mae: 0,
+    r2: 0
+  });
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
   const [bestModel, setBestModel] = useState(null);
@@ -195,15 +199,15 @@ const ModelVisualizer = () => {
         <div className={styles.metricsContainer}>
           <div className={`${styles.metric} ${isOptimal ? styles.optimalMetric : ''}`}>
             <label>RMSE:</label>
-            <span>{currentMetrics.rmse.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+            <span>{currentMetrics.rmse?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || '0.00'}</span>
           </div>
           <div className={`${styles.metric} ${isOptimal ? styles.optimalMetric : ''}`}>
             <label>MAE:</label>
-            <span>{currentMetrics.mae.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+            <span>{currentMetrics.mae?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || '0.00'}</span>
           </div>
           <div className={`${styles.metric} ${isOptimal ? styles.optimalMetric : ''}`}>
             <label>R² Score:</label>
-            <span>{currentMetrics.r2.toLocaleString(undefined, { maximumFractionDigits: 3 })}</span>
+            <span>{currentMetrics.r2?.toLocaleString(undefined, { maximumFractionDigits: 3 }) || '0.000'}</span>
           </div>
         </div>
       )}
