@@ -6,10 +6,10 @@
       "use": "@vercel/next"
     }
   ],
-  "functions": {
-    "api/*.js": {
-      "memory": 128,
-      "maxDuration": 10
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
-  }
+  ]
 } 
