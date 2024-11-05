@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import styles from '../styles/ModelVisualizer.module.css';
 
@@ -19,28 +19,18 @@ const ModelVisualizer = () => {
     max_depth: 3
   });
 
-  const getClosestValue = (value, validOptions) => {
-    return validOptions.reduce((prev, curr) => 
-      Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
-    );
-  };
-
   // Load initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch('/api/predictAll');
         const data = await response.json();
-        console.log("Initial data structure:", data);
+        setAllPredictions(data.predictions);
         
-        if (data.predictions) {
-          setAllPredictions(data.predictions);
-          // Set initial predictions
-          const initialKey = `${selectedParams.n_estimators}-${selectedParams.learning_rate}-${selectedParams.max_depth}`;
-          if (data.predictions[initialKey]) {
-            console.log("Setting initial predictions:", data.predictions[initialKey].predictions.slice(0, 5));
-            setCurrentPredictions(data.predictions[initialKey].predictions);
-          }
+        // Set initial predictions
+        const initialKey = `${selectedParams.n_estimators}-${selectedParams.learning_rate}-${selectedParams.max_depth}`;
+        if (data.predictions[initialKey]) {
+          setCurrentPredictions(data.predictions[initialKey].predictions);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -50,21 +40,27 @@ const ModelVisualizer = () => {
     fetchData();
   }, []);
 
-  const handleParamChange = (param, value) => {
-    // Snap to nearest valid value
-    const snappedValue = getClosestValue(value, validValues[param]);
-    console.log(`Parameter ${param} changed from ${value} to ${snappedValue}`);
-    
-    const newParams = { ...selectedParams, [param]: snappedValue };
-    const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
-    
+  const getClosestValue = (value, validOptions) => {
+    return validOptions.reduce((prev, curr) => 
+      Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+    );
+  };
+
+  const updatePredictions = useCallback((params) => {
+    const key = `${params.n_estimators}-${params.learning_rate}-${params.max_depth}`;
     if (allPredictions[key]) {
-      console.log(`Updating predictions for ${key}`);
+      console.log(`Setting new predictions for ${key}`);
       setCurrentPredictions([...allPredictions[key].predictions]);
     }
+  }, [allPredictions]);
 
+  const handleParamChange = useCallback((param, value) => {
+    const snappedValue = getClosestValue(value, validValues[param]);
+    const newParams = { ...selectedParams, [param]: snappedValue };
+    
     setSelectedParams(newParams);
-  };
+    updatePredictions(newParams);
+  }, [selectedParams, updatePredictions]);
 
   return (
     <div className={styles.visualizerContainer}>
@@ -125,29 +121,36 @@ const ModelVisualizer = () => {
       </div>
 
       <div className={styles.chartContainer}>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={currentPredictions}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="index" />
-            <YAxis domain={['auto', 'auto']} />
-            <Tooltip />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="actual" 
-              stroke="#8884d8" 
-              dot={false}
-              isAnimationActive={false}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="predicted" 
-              stroke="#82ca9d" 
-              dot={false}
-              isAnimationActive={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {currentPredictions.length > 0 ? (
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart 
+              data={currentPredictions}
+              key={`${selectedParams.n_estimators}-${selectedParams.learning_rate}-${selectedParams.max_depth}`}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="index" />
+              <YAxis domain={['auto', 'auto']} />
+              <Tooltip />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="actual" 
+                stroke="#8884d8" 
+                dot={false}
+                isAnimationActive={false}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="predicted" 
+                stroke="#82ca9d" 
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div>Loading...</div>
+        )}
       </div>
     </div>
   );
