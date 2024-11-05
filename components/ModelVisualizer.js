@@ -28,18 +28,11 @@ const ModelVisualizer = () => {
       try {
         const response = await fetch('/api/predictAll');
         const data = await response.json();
-        console.log("Full data structure:", JSON.stringify(data, null, 2));
-        
-        if (data.predictions) {
-          setAllPredictions(data.predictions);
-          // Set initial predictions using the default parameters
-          const initialKey = `${selectedParams.n_estimators}-${selectedParams.learning_rate}-${selectedParams.max_depth}`;
-          console.log("Available keys:", Object.keys(data.predictions));
-          console.log("Looking for initial key:", initialKey);
-          if (data.predictions[initialKey]) {
-            console.log("Sample of predictions:", data.predictions[initialKey].predictions.slice(0, 5));
-          }
-        }
+        console.log("Initial data load:", {
+          availableKeys: Object.keys(data.predictions),
+          samplePrediction: data.predictions['100-0.05-3']?.predictions?.slice(0, 5)
+        });
+        setAllPredictions(data.predictions);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -60,12 +53,13 @@ const ModelVisualizer = () => {
     newParams[param] = getClosestValue(value, validValues[param]);
 
     const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
-    console.log("Looking for key:", key);
+    console.log("Current predictions key:", key);
+    console.log("Available predictions:", Object.keys(allPredictions));
+    console.log("Found predictions:", allPredictions[key]?.predictions?.slice(0, 5));
     
     if (allPredictions[key]) {
-      console.log("Found predictions for key:", key);
       setCurrentPredictions(allPredictions[key].predictions);
-      setCurrentMetrics(allPredictions[key].metrics);
+      console.log("Updated predictions:", allPredictions[key].predictions.slice(0, 5));
     }
 
     setSelectedParams(newParams);
