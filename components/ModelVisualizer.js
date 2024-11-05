@@ -82,37 +82,120 @@ const ModelVisualizer = () => {
   return (
     <div className={styles.visualizerContainer}>
       <div className={styles.parameterControls}>
-        {Object.entries(validValues).map(([param, values]) => (
-          <div key={param} className={styles.parameterGroup}>
-            <label>
-              {param.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}:{' '}
-              {selectedParams[param].toFixed(param === 'learning_rate' || param === 'subsample' ? 3 : 0)}
-            </label>
-            <div className={styles.sliderContainer}>
-              <input 
-                type="range"
-                min={Math.min(...values)}
-                max={Math.max(...values)}
-                step={param === 'learning_rate' ? 0.001 : param === 'subsample' ? 0.1 : 1}
-                value={selectedParams[param]}
-                onChange={(e) => handleParamChange(param, Number(e.target.value))}
-                className={styles.slider}
-                onMouseDown={(e) => e.preventDefault()}
-                draggable="false"
-              />
-              <div className={styles.tickmarks}>
-                {values.map(value => (
-                  <div key={value} className={styles.tickmark}>
-                    <span className={styles.tickValue}>
-                      {(param === 'learning_rate' || param === 'subsample') ? value.toFixed(3) : value}
-                    </span>
-                    <div className={styles.tickLine}></div>
-                  </div>
-                ))}
-              </div>
+        {/* N Estimators Slider */}
+        <div className={styles.parameterGroup}>
+          <label>N Estimators: {selectedParams.n_estimators}</label>
+          <div className={styles.sliderContainer}>
+            <input 
+              type="range"
+              min={50}
+              max={300}
+              step={50}
+              value={selectedParams.n_estimators}
+              onChange={(e) => handleParamChange('n_estimators', Number(e.target.value))}
+              className={styles.slider}
+            />
+            <div className={styles.tickmarks}>
+              {[50, 100, 150, 200, 250, 300].map(value => (
+                <div key={value} className={styles.tickmark}>
+                  <span className={styles.tickValue}>{value}</span>
+                </div>
+              ))}
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Learning Rate Slider */}
+        <div className={styles.parameterGroup}>
+          <label>Learning Rate: {selectedParams.learning_rate.toFixed(3)}</label>
+          <div className={styles.sliderContainer}>
+            <input 
+              type="range"
+              min={0.001}
+              max={0.2}
+              step={0.001}
+              value={selectedParams.learning_rate}
+              onChange={(e) => handleParamChange('learning_rate', Number(e.target.value))}
+              className={styles.slider}
+            />
+            <div className={styles.tickmarks}>
+              {[0.001, 0.01, 0.05, 0.1, 0.15, 0.2].map(value => (
+                <div key={value} className={styles.tickmark}>
+                  <span className={styles.tickValue}>{value.toFixed(3)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Max Depth Slider */}
+        <div className={styles.parameterGroup}>
+          <label>Max Depth: {selectedParams.max_depth}</label>
+          <div className={styles.sliderContainer}>
+            <input 
+              type="range"
+              min={2}
+              max={7}
+              step={1}
+              value={selectedParams.max_depth}
+              onChange={(e) => handleParamChange('max_depth', Number(e.target.value))}
+              className={styles.slider}
+            />
+            <div className={styles.tickmarks}>
+              {[2, 3, 4, 5, 6, 7].map(value => (
+                <div key={value} className={styles.tickmark}>
+                  <span className={styles.tickValue}>{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Min Samples Split Slider */}
+        <div className={styles.parameterGroup}>
+          <label>Min Samples Split: {selectedParams.min_samples_split}</label>
+          <div className={styles.sliderContainer}>
+            <input 
+              type="range"
+              min={2}
+              max={10}
+              step={1}
+              value={selectedParams.min_samples_split}
+              onChange={(e) => handleParamChange('min_samples_split', Number(e.target.value))}
+              className={styles.slider}
+            />
+            <div className={styles.tickmarks}>
+              {[2, 5, 10].map(value => (
+                <div key={value} className={styles.tickmark}>
+                  <span className={styles.tickValue}>{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Subsample Slider */}
+        <div className={styles.parameterGroup}>
+          <label>Subsample: {selectedParams.subsample.toFixed(1)}</label>
+          <div className={styles.sliderContainer}>
+            <input 
+              type="range"
+              min={0.7}
+              max={1.0}
+              step={0.1}
+              value={selectedParams.subsample}
+              onChange={(e) => handleParamChange('subsample', Number(e.target.value))}
+              className={styles.slider}
+            />
+            <div className={styles.tickmarks}>
+              {[0.7, 0.8, 0.9, 1.0].map(value => (
+                <div key={value} className={styles.tickmark}>
+                  <span className={styles.tickValue}>{value.toFixed(1)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className={styles.chartContainer}>
