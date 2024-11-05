@@ -205,18 +205,50 @@ const ModelVisualizer = () => {
               data={currentPredictions}
               margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                stroke="#404040"
+              />
               <XAxis 
                 dataKey="index"
-                label={{ value: 'Sample Index', position: 'bottom', offset: 20 }}
+                label={{ 
+                  value: 'Sample Index', 
+                  position: 'bottom', 
+                  offset: 20,
+                  style: { fill: '#e0e0e0' }
+                }}
+                tick={{ fill: '#e0e0e0' }}
+                stroke="#666"
               />
               <YAxis 
                 domain={yDomain}
                 tickFormatter={(value) => value.toLocaleString()}
-                label={{ value: 'Insurance Charges ($)', angle: -90, position: 'left', offset: 40 }}
+                label={{ 
+                  value: 'Insurance Charges ($)', 
+                  angle: -90, 
+                  position: 'left', 
+                  offset: 40,
+                  style: { fill: '#e0e0e0' }
+                }}
+                tick={{ fill: '#e0e0e0' }}
+                stroke="#666"
               />
-              <Tooltip formatter={(value) => value.toLocaleString()} />
-              <Legend verticalAlign="top" height={36} />
+              <Tooltip 
+                formatter={(value) => value.toLocaleString()}
+                contentStyle={{
+                  backgroundColor: '#2d2d2d',
+                  border: 'none',
+                  borderRadius: '4px',
+                  color: '#e0e0e0',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.5)'
+                }}
+                labelStyle={{ color: '#e0e0e0' }}
+              />
+              <Legend 
+                verticalAlign="top" 
+                height={36}
+                wrapperStyle={{ color: '#e0e0e0' }}
+              />
               <Line 
                 type="monotone" 
                 dataKey="actual" 
@@ -224,14 +256,16 @@ const ModelVisualizer = () => {
                 name="Actual Charges" 
                 dot={false}
                 isAnimationActive={false}
+                strokeWidth={2}
               />
               <Line 
                 type="monotone" 
                 dataKey="predicted" 
-                stroke="#82ca9d" 
+                stroke="#4CAF50" 
                 name="Predicted Charges" 
                 dot={false}
                 isAnimationActive={false}
+                strokeWidth={2}
               />
             </LineChart>
           </ResponsiveContainer>
