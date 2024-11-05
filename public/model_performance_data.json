@@ -1,0 +1,14 @@
+{
+  "models": [
+    {
+      "n_estimators": 100,
+      "learning_rate": 0.05,
+      "max_depth": 3,
+      "metrics": {
+        "rmse": 4294.46,
+        "mae": 2500.12,
+        "r2": 0.881
+      }
+    }
+  ]
+} 
