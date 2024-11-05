@@ -24,6 +24,11 @@ const ModelVisualizer = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedParams, setSelectedParams] = useState({
+    n_estimators: 100,
+    learning_rate: 0.05,
+    max_depth: 3
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,6 +67,20 @@ const ModelVisualizer = () => {
 
     fetchData();
   }, []);
+
+  // Add handler for parameter changes
+  const handleParamChange = (param, value) => {
+    const newParams = { ...selectedParams, [param]: value };
+    setSelectedParams(newParams);
+    
+    // Create the key to look up predictions
+    const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
+    
+    if (allPredictions[key]) {
+      setCurrentPredictions(allPredictions[key].predictions);
+      setCurrentMetrics(allPredictions[key].metrics);
+    }
+  };
 
   if (isLoading) return <div className={styles.loading}>Loading model predictions...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
@@ -139,6 +158,45 @@ const ModelVisualizer = () => {
             />
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Add Parameter Controls */}
+      <div className={styles.parameterControls}>
+        <div className={styles.parameterGroup}>
+          <label>Number of Estimators:</label>
+          <select 
+            value={selectedParams.n_estimators}
+            onChange={(e) => handleParamChange('n_estimators', Number(e.target.value))}
+          >
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+            <option value={200}>200</option>
+          </select>
+        </div>
+
+        <div className={styles.parameterGroup}>
+          <label>Learning Rate:</label>
+          <select 
+            value={selectedParams.learning_rate}
+            onChange={(e) => handleParamChange('learning_rate', Number(e.target.value))}
+          >
+            <option value={0.01}>0.01</option>
+            <option value={0.05}>0.05</option>
+            <option value={0.1}>0.10</option>
+          </select>
+        </div>
+
+        <div className={styles.parameterGroup}>
+          <label>Max Depth:</label>
+          <select 
+            value={selectedParams.max_depth}
+            onChange={(e) => handleParamChange('max_depth', Number(e.target.value))}
+          >
+            <option value={2}>2</option>
+            <option value={3}>3</option>
+            <option value={5}>5</option>
+          </select>
+        </div>
       </div>
     </div>
   );

@@ -183,4 +183,64 @@
   0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
   50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); }
   100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+}
+
+.parameterControls {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.parameterGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.parameterGroup label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.parameterGroup select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 1rem;
+  color: #2c3e50;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.parameterGroup select:hover {
+  border-color: #adb5bd;
+}
+
+.parameterGroup select:focus {
+  outline: none;
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+@media (max-width: 768px) {
+  .parameterControls {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .parameterGroup {
+    width: 100%;
+  }
+
+  .parameterGroup select {
+    width: 100%;
+  }
 } 
