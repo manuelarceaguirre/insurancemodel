@@ -10,10 +10,18 @@ const ModelVisualizer = () => {
     mae: 0,
     r2: 0
   });
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [bestModel, setBestModel] = useState(null);
-  const [isOptimal, setIsOptimal] = useState(false);
+  const [bestModel, setBestModel] = useState({
+    params: {
+      n_estimators: 200,
+      learning_rate: 0.1,
+      max_depth: 4
+    },
+    metrics: {
+      rmse: 0,
+      mae: 0,
+      r2: 0
+    }
+  });
 
   // Define valid parameter values
   const validParams = {
@@ -28,120 +36,64 @@ const ModelVisualizer = () => {
     max_depth: 3
   });
 
-  // Load all predictions at once when component mounts
+  // Fetch predictions
   useEffect(() => {
-    const loadAllPredictions = async () => {
+    const fetchData = async () => {
       try {
         const response = await fetch('/api/predictAll');
         const data = await response.json();
         
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to load predictions');
+        if (data && data.predictions) {
+          setAllPredictions(data.predictions);
+          // Set initial predictions
+          const firstKey = Object.keys(data.predictions)[0];
+          if (firstKey) {
+            const firstPrediction = data.predictions[firstKey];
+            setCurrentPredictions(firstPrediction.predictions || []);
+            setCurrentMetrics(firstPrediction.metrics || { rmse: 0, mae: 0, r2: 0 });
+          }
         }
 
-        setAllPredictions(data.predictions);
-        // Set initial predictions
-        const key = `${params.n_estimators}-${params.learning_rate}-${params.max_depth}`;
-        setCurrentPredictions(data.predictions[key] || []);
-        setInitialLoading(false);
+        if (data && data.bestConfig) {
+          setBestModel({
+            params: data.bestConfig,
+            metrics: data.bestConfig.metrics || { rmse: 0, mae: 0, r2: 0 }
+          });
+        }
       } catch (error) {
-        console.error('Error loading predictions:', error);
-        setError(error.message);
-        setInitialLoading(false);
+        console.error('Error fetching data:', error);
       }
     };
 
-    loadAllPredictions();
+    fetchData();
   }, []);
 
-  // Find nearest valid parameter value
-  const findNearestValue = (value, validValues) => {
-    return validValues.reduce((prev, curr) => {
-      return Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev;
-    });
-  };
-
-  // Update predictions and metrics when params change
+  // Update predictions when params change
   useEffect(() => {
-    const nearestN = findNearestValue(params.n_estimators, validParams.n_estimators);
-    const nearestLR = findNearestValue(params.learning_rate, validParams.learning_rate);
-    const nearestMD = findNearestValue(params.max_depth, validParams.max_depth);
+    if (!allPredictions || Object.keys(allPredictions).length === 0) return;
 
-    const key = `${nearestN}-${nearestLR}-${nearestMD}`;
-    if (allPredictions[key]) {
-      setCurrentPredictions(allPredictions[key].predictions);
-      setCurrentMetrics(allPredictions[key].metrics);
+    const key = `${params.n_estimators}-${params.learning_rate}-${params.max_depth}`;
+    const predictionData = allPredictions[key];
+    
+    if (predictionData) {
+      setCurrentPredictions(predictionData.predictions || []);
+      setCurrentMetrics(predictionData.metrics || { rmse: 0, mae: 0, r2: 0 });
     }
   }, [params, allPredictions]);
 
-  // Function to find the best model when data is loaded
-  const findBestModel = (predictions) => {
-    let best = {
-      params: null,
-      metrics: null,
-      score: -Infinity
-    };
-
-    Object.entries(predictions).forEach(([key, data]) => {
-      // Calculate overall score (you can adjust weights based on importance)
-      const score = data.metrics.r2 * 0.6 - (data.metrics.rmse / 10000) * 0.4;
-      
-      if (score > best.score) {
-        const [n_est, lr, md] = key.split('-').map(Number);
-        best = {
-          params: {
-            n_estimators: n_est,
-            learning_rate: lr,
-            max_depth: md
-          },
-          metrics: data.metrics,
-          score
-        };
-      }
-    });
-
-    return best;
-  };
-
-  // Update best model when data is loaded
-  useEffect(() => {
-    if (Object.keys(allPredictions).length > 0) {
-      setBestModel(findBestModel(allPredictions));
-    }
-  }, [allPredictions]);
-
-  // Check if current params are optimal
-  useEffect(() => {
-    if (bestModel) {
-      const isClose = 
-        params.n_estimators === bestModel.params.n_estimators &&
-        Math.abs(params.learning_rate - bestModel.params.learning_rate) < 0.01 &&
-        params.max_depth === bestModel.params.max_depth;
-      setIsOptimal(isClose);
-    }
-  }, [params, bestModel]);
-
   return (
     <div className={styles.visualizerContainer}>
-      <h1 className={styles.title}>Insurance Cost Predictor</h1>
-      
+      <h1>Insurance Cost Predictor</h1>
+
       {bestModel && (
-        <div className={`${styles.optimalMessage} ${isOptimal ? styles.optimal : ''}`}>
-          {isOptimal ? (
-            <div className={styles.optimalBadge}>
-              <span>✨ Current configuration is optimal! ✨</span>
-            </div>
-          ) : (
-            <div className={styles.bestModelHint}>
-              <span>Best model configuration:</span>
-              <ul>
-                <li>Number of Estimators: {bestModel.params.n_estimators}</li>
-                <li>Learning Rate: {bestModel.params.learning_rate}</li>
-                <li>Max Depth: {bestModel.params.max_depth}</li>
-              </ul>
-              <span>Try adjusting the sliders to match these values!</span>
-            </div>
-          )}
+        <div className={styles.bestModelHint}>
+          <span>Best model configuration:</span>
+          <ul>
+            <li>Number of Estimators: {bestModel.params.n_estimators}</li>
+            <li>Learning Rate: {bestModel.params.learning_rate}</li>
+            <li>Max Depth: {bestModel.params.max_depth}</li>
+          </ul>
+          <span>Try adjusting the sliders to match these values!</span>
         </div>
       )}
 
@@ -195,97 +147,83 @@ const ModelVisualizer = () => {
         </div>
       </div>
 
-      {currentMetrics && (
-        <div className={styles.metricsContainer}>
-          <div className={`${styles.metric} ${isOptimal ? styles.optimalMetric : ''}`}>
-            <label>RMSE:</label>
-            <span>{currentMetrics.rmse?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || '0.00'}</span>
-          </div>
-          <div className={`${styles.metric} ${isOptimal ? styles.optimalMetric : ''}`}>
-            <label>MAE:</label>
-            <span>{currentMetrics.mae?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || '0.00'}</span>
-          </div>
-          <div className={`${styles.metric} ${isOptimal ? styles.optimalMetric : ''}`}>
-            <label>R² Score:</label>
-            <span>{currentMetrics.r2?.toLocaleString(undefined, { maximumFractionDigits: 3 }) || '0.000'}</span>
-          </div>
+      <div className={styles.metricsContainer}>
+        <div className={styles.metric}>
+          <label>RMSE:</label>
+          <span>{(currentMetrics?.rmse || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
         </div>
-      )}
+        <div className={styles.metric}>
+          <label>MAE:</label>
+          <span>{(currentMetrics?.mae || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+        </div>
+        <div className={styles.metric}>
+          <label>R² Score:</label>
+          <span>{(currentMetrics?.r2 || 0).toLocaleString(undefined, { maximumFractionDigits: 3 })}</span>
+        </div>
+      </div>
 
       <div className={styles.chartContainer}>
-        {initialLoading ? (
-          <div className={styles.loading}>Loading predictions...</div>
-        ) : currentPredictions.length > 0 ? (
-          <LineChart
-            width={800}
-            height={400}
-            data={currentPredictions}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
+        <LineChart
+          width={800}
+          height={400}
+          data={currentPredictions}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        >
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            stroke="#404040"
+          />
+          <XAxis 
+            dataKey="index" 
+            domain={[0, 49]}
+            type="number"
+            ticks={[0, 6, 12, 18, 24, 30, 36, 42, 49]}
+            tick={{ fill: '#e0e0e0' }}
+            stroke="#404040"
+          />
+          <YAxis 
+            domain={[0, 80000]}
+            tickFormatter={(value) => value.toLocaleString()}
+            tick={{ fill: '#e0e0e0' }}
+            stroke="#404040"
+          />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: '#2d2d2d', 
+              border: '1px solid #404040',
+              color: '#e0e0e0' 
             }}
-            style={{ background: '#2d2d2d' }}
-          >
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              stroke="#404040"
-            />
-            <XAxis 
-              dataKey="index" 
-              domain={[0, 49]}
-              type="number"
-              ticks={[0, 6, 12, 18, 24, 30, 36, 42, 49]}
-              tick={{ fill: '#e0e0e0' }}
-              stroke="#404040"
-            />
-            <YAxis 
-              domain={[0, 80000]}
-              tickFormatter={(value) => value.toLocaleString()}
-              tick={{ fill: '#e0e0e0' }}
-              stroke="#404040"
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: '#2d2d2d', 
-                border: '1px solid #404040',
-                color: '#e0e0e0' 
-              }}
-              itemStyle={{ color: '#e0e0e0' }}
-              formatter={(value) => value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-            />
-            <Legend 
-              wrapperStyle={{ color: '#e0e0e0' }}
-            />
-            <Line
-              type="monotone"
-              dataKey="actual"
-              stroke="#ffffff"
-              name="Actual"
-              dot={false}
-              isAnimationActive={true}
-              animationDuration={300}
-              animationBegin={0}
-              animationEasing="ease-in-out"
-              strokeWidth={2}
-            />
-            <Line
-              type="monotone"
-              dataKey="predicted"
-              stroke="#ff6b6b"
-              name="Predicted"
-              dot={false}
-              isAnimationActive={true}
-              animationDuration={300}
-              animationBegin={0}
-              animationEasing="ease-in-out"
-              strokeWidth={2}
-            />
-          </LineChart>
-        ) : (
-          <div className={styles.noData}>No data available for these parameters</div>
-        )}
+            itemStyle={{ color: '#e0e0e0' }}
+            formatter={(value) => value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          />
+          <Legend 
+            wrapperStyle={{ color: '#e0e0e0' }}
+          />
+          <Line
+            type="monotone"
+            dataKey="actual"
+            stroke="#ffffff"
+            name="Actual"
+            dot={false}
+            isAnimationActive={true}
+            animationDuration={300}
+            animationBegin={0}
+            animationEasing="ease-in-out"
+            strokeWidth={2}
+          />
+          <Line
+            type="monotone"
+            dataKey="predicted"
+            stroke="#ff6b6b"
+            name="Predicted"
+            dot={false}
+            isAnimationActive={true}
+            animationDuration={300}
+            animationBegin={0}
+            animationEasing="ease-in-out"
+            strokeWidth={2}
+          />
+        </LineChart>
       </div>
     </div>
   );
