@@ -4,6 +4,47 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Log the keys we're creating
+    const modelData = [
+      {"n_estimators": 50, "learning_rate": 0.01, "max_depth": 2, "rmse": 8620.33, "mae": 6703.68, "r2": 0.5213},
+      {"n_estimators": 50, "learning_rate": 0.01, "max_depth": 3, "rmse": 8361.81, "mae": 6554.32, "r2": 0.5496},
+      // ... other configurations ...
+    ];
+
+    const allPredictions = {};
+    modelData.forEach(data => {
+      // Ensure consistent key format
+      const key = `${data.n_estimators}-${data.learning_rate}-${data.max_depth}`;
+      console.log('Creating key:', key);
+      
+      allPredictions[key] = {
+        predictions: generatePredictionsFromMetrics(data),
+        metrics: {
+          rmse: data.rmse,
+          mae: data.mae,
+          r2: data.r2
+        }
+      };
+    });
+
+    return res.status(200).json({
+      predictions: allPredictions,
+      bestConfig: {
+        n_estimators: 100,
+        learning_rate: 0.05,
+        max_depth: 3,
+        metrics: {
+          rmse: 4294.46,
+          mae: 2473.41,
+          r2: 0.8812
+        }
+      }
+    });
+  } catch (error) {
+    console.error('API Error:', error);
+    return res.status(500).json({ error: error.message });
+  }
+}
     // Best configuration from our trained model
     const bestConfig = {
       n_estimators: 100,

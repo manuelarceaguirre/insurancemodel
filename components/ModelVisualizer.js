@@ -76,28 +76,43 @@ const ModelVisualizer = () => {
     
     // Round the values to match available options
     if (param === 'n_estimators') {
-      // Round to nearest available value: 50, 100, 200
       const values = [50, 100, 200];
       newParams[param] = values.reduce((prev, curr) => 
         Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
       );
     } else if (param === 'learning_rate') {
-      // Round to nearest available value: 0.01, 0.05, 0.1
       const values = [0.01, 0.05, 0.1];
       newParams[param] = values.reduce((prev, curr) => 
         Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
       );
     } else if (param === 'max_depth') {
-      // Round to nearest available value: 2, 3, 5
       const values = [2, 3, 5];
       newParams[param] = values.reduce((prev, curr) => 
         Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
       );
     }
 
+    // Create the exact key format that matches our data
+    const key = `${newParams.n_estimators}-${newParams.learning_rate}-${newParams.max_depth}`;
+    console.log('Looking for predictions with key:', key);
+    console.log('Available keys:', Object.keys(allPredictions));
+
+    if (allPredictions[key]) {
+      console.log('Found predictions for:', key);
+      setCurrentPredictions(allPredictions[key].predictions);
+      setCurrentMetrics(allPredictions[key].metrics);
+    } else {
+      console.log('No predictions found for:', key);
+    }
+
     setSelectedParams(newParams);
-    updatePredictions(allPredictions, newParams);
   };
+
+  // Add this useEffect to monitor state changes
+  useEffect(() => {
+    console.log('Current Predictions:', currentPredictions);
+    console.log('Current Metrics:', currentMetrics);
+  }, [currentPredictions, currentMetrics]);
 
   if (isLoading) return <div className={styles.loading}>Loading model predictions...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
