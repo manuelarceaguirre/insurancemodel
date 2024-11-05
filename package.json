@@ -1,18 +1,18 @@
 {
   "name": "insurance-predictor",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "csv-parse": "^5.5.6",
-    "lodash": "^4.17.21",
-    "ml-random-forest": "^2.1.0",
-    "next": "^12.3.4",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "recharts": "^2.13.3"
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "recharts": "^2.12.0"
   }
 }
